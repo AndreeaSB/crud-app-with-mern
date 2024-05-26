@@ -1,5 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const cors = require('cors')
+
 const FoodModel = require('./models/Food')
 
 const app = express()
@@ -7,6 +9,7 @@ const PORT = 3000;
 const MONGO_URI = 'mongodb+srv://AndreeaSB:testing123@cluster0.hrc7roo.mongodb.net/CrudApp';
 
  app.use(express.json())
+ app.use(cors())
 
  mongoose.Promise = global.Promise;
  mongoose.connect(MONGO_URI, { useUnifiedTopology: true, useNewUrlParser: true}).then(() => {
@@ -21,11 +24,11 @@ const MONGO_URI = 'mongodb+srv://AndreeaSB:testing123@cluster0.hrc7roo.mongodb.n
     res.send("Hello lume!")
 })
 
-app.get('/getsmth', async (req, res) => {
-    console.log(`I'm in`)
+app.post('/insert', async (req, res) => {
+    console.log('inset function')
     const food = new FoodModel({
-        foodName: 'apple',
-        daysSinceIAte: 3
+        foodName: req.body.foodName,
+        daysSinceIAte: req.body.days
     })
     try {
         await food.save()
@@ -33,6 +36,14 @@ app.get('/getsmth', async (req, res) => {
         console.log(err)
     }
 }) 
+
+app.get('/read', (req,res) => {
+    FoodModel.find({}).then(result => {
+        res.send(result)
+    }).catch(err => {
+        res.send(err)
+    })
+})
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT} :)`)
