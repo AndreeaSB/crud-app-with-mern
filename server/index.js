@@ -1,6 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
+const bodyParser = require('body-parser')
 
 const FoodModel = require('./models/Food')
 
@@ -10,6 +11,7 @@ const MONGO_URI = 'mongodb+srv://AndreeaSB:testing123@cluster0.hrc7roo.mongodb.n
 
  app.use(express.json())
  app.use(cors())
+ app.use(bodyParser.urlencoded({ extended: true }));
 
  mongoose.Promise = global.Promise;
  mongoose.connect(MONGO_URI, { useUnifiedTopology: true, useNewUrlParser: true}).then(() => {
@@ -37,9 +39,34 @@ app.post('/insert', async (req, res) => {
     }
 }) 
 
+app.put('/update', async (req, res) => {
+
+    console.log('update fct')
+    
+    try {
+        FoodModel.findByIdAndUpdate(req.body.id, {foodName: req.body.foodName}).then(updatedFood => {
+            res.send('updated')
+        })
+    } catch(err) {
+        console.log(err)
+    }
+}) 
+
 app.get('/read', (req,res) => {
     FoodModel.find({}).then(result => {
         res.send(result)
+    }).catch(err => {
+        res.send(err)
+    })
+})
+
+app.delete('/delete/:id',async(req,res) => {
+    const id = req.params.id
+    console.log('delete fct server')
+
+    await FoodModel.findByIdAndDelete(id).then(deletedFood => {
+        res.send('Deleted')
+        console.log(deletedFood)
     }).catch(err => {
         res.send(err)
     })
